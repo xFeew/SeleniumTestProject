@@ -8,7 +8,6 @@ Po sklonowaniu kompilujemy kod a następnie w eksploratorze rozwiązań wybieram
 
 
 
-
+# Wyniki
 ![alt text](https://github.com/xFeew/SeleniumTestProject/blob/master/Przechwytywanie.PNG)
-
 ![alt text](https://github.com/xFeew/SeleniumTestProject/blob/master/TestyKonsola.PNG)
