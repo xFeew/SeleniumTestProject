@@ -8,571 +8,106 @@ namespace SeleniumTestProject
     [TestFixture()]
     public class Tests
     {
-
+        //URL formularza
         string test_url = "https://lamp.ii.us.edu.pl/~mtdyd/zawody/";
+        //Sciezka do chromedriver - jesli testy nie dzialaja, mozliwe ze tu tkwi przyczyna, nalezy sprawdzic sciezke w jakiej mamy zainstalowane Google Chrome i chromedriver (powinny byc umieszczone w tym samym katalogu)
         ChromeDriver driver = new ChromeDriver(@"C:\Program Files\Google\Chrome\Application");
+        //bool do oblsugi alertow
+        private bool accAlert = true;
 
         [OneTimeSetUp]
         public void startBrowser()
         {
-
             driver.Manage().Window.Maximize();
         }
 
+        //Testy, przykladowe dane ktorymi zostanie uzupelniony formularz
         [Test]
-        public void Test1() //Test 1
+        [TestCase("Jan", "Kowalski", "05-05-0000", true, true)]
+        [TestCase("Jan", "Nowak", "Piętnasty Tego Roku", true, false)]
+        [TestCase("Imię", "Nazwisko", "15 V 2000", false, true)]
+        [TestCase("Jan", "Kowalski", "11-12-1998", false, false)]
+        [TestCase("Jan!@#!@#", "Kowa1231!!lski", "12-12-2006", false, true)]
+        [TestCase("Jan", "Kowalski", "15062000", true, true)]
+        [TestCase("z", "z", "15-06-1950", false, true)]
+        [TestCase("Jan", "Kowalski", "XD", true, false)]
+        [TestCase("Jan", "Kowalski", "15/15/15", true, true)]
+        [TestCase("Jan", "Kowalski", "-10000", true, true)]
+        [TestCase("Jan", "Kowalski", "!@#)%*(!@&%)!@", true, true)]
+        [TestCase("Jan", "Kowalski", "12-31-2000", true, true)]
+        [TestCase("Jan", "xD", "31-12-2020", false, false)]
+        [TestCase("ـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـة", "Jan", "05-05-0000", false, true)]
+        [TestCase("--------------B15x", "Nowak", "Piętnasty Tego Roku", true, false)]
+        [TestCase("Imię", "2+2=1", "15 V 2000", false, true)]
+        [TestCase(":D", "Kowalski", "11-12-1998", false, false)]
+        [TestCase("Jan!@#!@#", "Kowa1231!!lski", "12-12-2006", true, false)]
+        [TestCase("Jan", "Kowalski", "15062000", true, true)]
+        [TestCase("z", "z", "15-06-1950", true, true)]
+        [TestCase("*****", "***", "XD", false, false)]
+        [TestCase("-1", "Kowalski", "15/15/15", true, true)]
+        [TestCase("'okoń'; Select * from password_table;", "Kowalski", "-10000", true, true)]
+        [TestCase("var Nazwisko = Wielbłąd;", "Kowalski analiza", "!@#)%*(!@&%)!@", true, true)]
+        [TestCase("Jan", "Kowalski", "12-31-2000", true, true)]
+        [TestCase("Jan", "panda5", "31-12-2020", true, true)]
+        [TestCase("J@n", ":-D", "1a2b3c", false, true)]
+
+        public void Testowanie(string firstname, string lastname, string date, bool rodzice, bool lekarz)
         {
+            //Przejscie do strony
             driver.Url = test_url;
+            driver.Navigate().GoToUrl(test_url);
 
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
+            //Znalezienie odpowiednich elementow w formularzu do uzupelnienia
+            driver.FindElement(By.Id("inputEmail3")).Clear();
+            driver.FindElement(By.Id("inputEmail3")).SendKeys(firstname);
+            driver.FindElement(By.Id("inputPassword3")).Clear();
+            driver.FindElement(By.Id("inputPassword3")).SendKeys(lastname);
+            driver.FindElement(By.Id("dataU")).Clear();
+            driver.FindElement(By.Id("dataU")).SendKeys(date);
 
-            imie.SendKeys("Jan");
-            nazwisko.SendKeys("Kowalski");
-            data.SendKeys("05-05-0000");
-            rodzice.Click();
-            lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-
-
-
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
+            //Warunki odpowiedzialne za odpowiednie zaznaczanie CheckBox w formularzu
+            if (rodzice)
             {
-                condition = true;
+                driver.FindElement(By.Id("rodzice")).Click();
             }
-            else if (AlertText.Equals("Blad danych"))
+            if (lekarz)
             {
-                condition = false;
+                driver.FindElement(By.Id("lekarz")).Click();
             }
-            Assert.True(condition);
 
+            driver.FindElement(By.CssSelector("[class='btn btn-default']")).Click();
 
-            Console.WriteLine("test zakonczony");
-        }
-        [Test]
-        public void Test2() //Test 2
-        {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("Jan123");
-            nazwisko.SendKeys("Kowalski123");
-            data.SendKeys("05-05-1998");
-            rodzice.Click();
-            //lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
-            {
-                condition = true;
-            }
-            else if (AlertText.Equals("Blad danych"))
-            {
-                condition = false;
-            }
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
-        }
-        [Test]
-        public void Test3() //Test 3
-        {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("Jan");
-            nazwisko.SendKeys("Kowalski");
-            data.SendKeys("11-11-1998");
-            //rodzice.Click();
-            lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
-            {
-                condition = true;
-            }
-            else if (AlertText.Equals("Blad danych"))
-            {
-                condition = false;
-            }
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
-        }
-        [Test]
-        public void Test4() //Test 4
-        {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("Jan");
-            nazwisko.SendKeys("Kowalski");
-            data.SendKeys("11-11-2003");
-            //rodzice.Click();
-            //lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
-            {
-                condition = true;
-            }
-            else if (AlertText.Equals("Blad danych"))
-            {
-                condition = false;
-            }
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
-        }
-        [Test]
-        public void Test5() //Test 5
-        {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("Jan");
-            nazwisko.SendKeys("Kowalski");
-            data.SendKeys("11-11-2011");
-            rodzice.Click();
-            //lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
-            {
-                condition = true;
-            }
-            else if (AlertText.Equals("Blad danych"))
-            {
-                condition = false;
-            }
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
+            //Informacja zwrotna dla uzytkownika, wyniki testow
+            Console.WriteLine("Test zakonczony, wynik:");
+            Console.WriteLine(handleAlert());
+            Console.WriteLine(handleAlert());
         }
 
-        [Test]
-        public void Test6() //Test 6
+        //Obsluga Alert'ow
+        private string handleAlert()
         {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("ـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـة");
-            nazwisko.SendKeys("ـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـةـة");
-            data.SendKeys("X-d-d");
-            rodzice.Click();
-            lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
+            try
             {
-                condition = true;
+                IAlert alert = driver.SwitchTo().Alert();
+                string alertText = alert.Text;
+                if (accAlert = true)
+                {
+                    alert.Accept();
+                }
+                else
+                {
+                    alert.Dismiss();
+                }
+
+                return alertText;
             }
-
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
-        }
-        [Test]
-        public void Test7() //Test 7
-        {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("1-2-3");
-            nazwisko.SendKeys("3-4-5");
-            data.SendKeys("1-2-2-3");
-            rodzice.Click();
-            //lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
+            finally
             {
-                condition = true;
+                accAlert = true;
             }
-            else if (AlertText.Equals("Blad danych"))
-            {
-                condition = false;
-            }
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
-        }
-        [Test]
-        public void Test8() //Test 8
-        {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("var Nazwisko = Wielbłąd;");
-            nazwisko.SendKeys("(!*#^%$!)@*%");
-            data.SendKeys("30-30-3030");
-            rodzice.Click();
-            lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
-            {
-                condition = true;
-            }
-            else if (AlertText.Equals("Blad danych"))
-            {
-                condition = false;
-            }
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
-        }
-        [Test]
-        public void Test9() //Test 9
-        {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("'okoń' ; Select * from password_table;");
-            nazwisko.SendKeys("zxcasd");
-            data.SendKeys("15 V 2000");
-            rodzice.Click();
-            lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
-            {
-                condition = true;
-            }
-
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
         }
 
-        [Test]
-        public void Test10() //Test 10
-        {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("Jan Nowak");
-            nazwisko.SendKeys("polecony");
-            data.SendKeys("Zdanie jako data? czemu nie.");
-            rodzice.Click();
-            lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
-            {
-                condition = true;
-            }
-            else if (AlertText.Equals("Blad danych"))
-            {
-                condition = false;
-            }
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
-        }
-
-        [Test]
-        public void Test11() //Test 11
-        {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("Fajne");
-            nazwisko.SendKeys("Te");
-            data.SendKeys("Testy");
-            //rodzice.Click();
-            // lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
-            {
-                condition = true;
-            }
-            else if (AlertText.Equals("Blad danych"))
-            {
-                condition = false;
-            }
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
-        }
-
-        [Test]
-        public void Test12() //Test 12
-        {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("x");
-            nazwisko.SendKeys("d");
-            data.SendKeys("d");
-            //rodzice.Click();
-            lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
-            {
-                condition = true;
-            }
-            else if (AlertText.Equals("Blad danych"))
-            {
-                condition = false;
-            }
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
-        }
-        [Test]
-        public void Test13() //Test 13
-        {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys(":D");
-            nazwisko.SendKeys("100%");
-            data.SendKeys("00-99-(-1)*0");
-            //rodzice.Click();
-            //lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
-            {
-                condition = true;
-            }
-            else if (AlertText.Equals("Blad danych"))
-            {
-                condition = false;
-            }
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
-        }
-        [Test]
-        public void Test14() //Test 14
-        {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("Jan");
-            nazwisko.SendKeys("Nowak");
-            data.SendKeys("01-01-2002");
-            rodzice.Click();
-            lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
-            {
-                condition = true;
-            }
-            else if (AlertText.Equals("Blad danych"))
-            {
-                condition = false;
-            }
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
-        }
-        [Test]
-        public void Test15() //Test 15
-        {
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("Jan");
-            nazwisko.SendKeys("Nowak");
-            data.SendKeys("01-01-2004");
-            rodzice.Click();
-            lekarz.Click();
-            sendForm.Click();
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-            Boolean condition = false;
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
-            {
-                condition = true;
-            }
-            else if (AlertText.Equals("Blad danych"))
-            {
-                condition = false;
-            }
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
-        }
-
-        [Test]
-        public void Test16() //Test 16
-        {
-            Boolean condition = false;
-            driver.Url = test_url;
-
-            IWebElement imie = driver.FindElement(By.CssSelector("[id='inputEmail3']"));
-            IWebElement nazwisko = driver.FindElement(By.CssSelector("[id='inputPassword3']"));
-            IWebElement data = driver.FindElement(By.CssSelector("[id='dataU']"));
-            IWebElement rodzice = driver.FindElement(By.CssSelector("[id='rodzice']"));
-            IWebElement lekarz = driver.FindElement(By.CssSelector("[id='lekarz']"));
-            IWebElement sendForm = driver.FindElement(By.CssSelector("[class='btn btn-default']"));
-
-            imie.SendKeys("Jan");
-            nazwisko.SendKeys("Nowak");
-            data.SendKeys("12-12-1995");
-            //rodzice.Click();
-            //lekarz.Click();
-            sendForm.Click();
-
-
-            driver.SwitchTo().Alert().Accept();
-            string AlertText = driver.SwitchTo().Alert().Text;
-
-            System.Threading.Thread.Sleep(100);
-            if (AlertText.Equals("Dorosly") || AlertText.Equals("Mlodzik") || AlertText.Equals("Junior") || AlertText.Equals("Senior") || AlertText.Equals("Brak kwalifikacji"))
-            {
-                condition = true;
-            }
-            else if (AlertText.Equals("Blad danych"))
-            {
-                condition = false;
-            }
-            Assert.True(condition);
-
-            Console.WriteLine("test zakonczony");
-        }
-
-
-
-
+        //Zakonczenie testow
         [OneTimeTearDown]
         public void closeBrowser()
         {
